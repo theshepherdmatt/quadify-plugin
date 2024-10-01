@@ -1,54 +1,128 @@
 {
-	"page": {
-		"label": "TRANSLATE.QUADIFY.PLUGINCONF"
-	},
-	"sections": [{
-		"id": "pin_settings",
-		"element": "section",
-		"label": "TRANSLATE.QUADIFY.GPIOCONFIG",
-		"description": "TRANSLATE.QUADIFY.D_GPIOCONFIG",
-		"icon": "fa-sliders",
-		"onSave": {
-			"type": "controller",
-			"endpoint": "system_hardware/quadify",
-			"method": "updateButtonConfig"
-		},
-		"saveButton": {
-			"label": "TRANSLATE.QUADIFY.SAVE",
-			"data": [
-					"soft_shutdown",
-					"shutdown_button",
-					"boot_ok"
-				]
-		},
-		"content": [
-		{
-			"id": "soft_shutdown",
-			"element": "input",
-			"type": "text",
-			"doc": "TRANSLATE.QUADIFY.D_SOFTSHUTDOWN",
-			"label": "TRANSLATE.QUADIFY.SOFTSHUTDOWN",
-			"description": "TRANSLATE.QUADIFY.DD_SOFTSHUTDOWN",
-			"value": ""
-		},
-		{
-			"id": "shutdown_button",
-			"element": "input",
-			"type": "text",
-			"doc": "TRANSLATE.QUADIFY.D_SHUTDOWNBUTTON",
-			"label": "TRANSLATE.QUADIFY.SHUTDOWNBUTTON",
-			"description": "TRANSLATE.QUADIFY.DD_SHUTDOWNBUTTON",
-			"value": ""
-		},
-		{
-			"id": "boot_ok",
-			"element": "input",
-			"type": "text",
-			"doc": "TRANSLATE.QUADIFY.D_BOOTOK",
-			"label": "TRANSLATE.QUADIFY.BOOTOK",
-			"description": "TRANSLATE.QUADIFY.DD_BOOTOK",
-			"value": ""
-		}]
-	}]
+    "page": {
+        "label": "Quadify DAC Configuration"
+    },
+    "sections": [
+        {
+            "id": "documentation",
+            "element": "section",
+            "label": "Documentation",
+            "icon": "fa-book",
+            "content": [{
+                "id": "quadify_help",
+                "element": "button",
+                "label": "Open Documentation",
+                "doc": "Click here to open the plugin documentation",
+                "onClick": {
+                    "type": "plugin",
+                    "endpoint": "miscellanea/quadify",
+                    "method": "getPluginDoc"
+                }
+            }]
+        },
+        {
+            "id": "oled_display",
+            "element": "section",
+            "label": "OLED Display Configuration",
+            "icon": "fa-television",
+            "onSave": {
+                "type": "controller",
+                "endpoint": "miscellanea/quadify",
+                "method": "updateOledConfig"
+            },
+            "saveButton": {
+                "label": "Save",
+                "data": [
+                    "oled_active",
+                    "contrast",
+                    "sleep_after",
+                    "deep_sleep_after"
+                ]
+            },
+            "content": [{
+                "id": "oled_active",
+                "element": "switch",
+                "label": "Enable OLED",
+                "doc": "Enable or disable the OLED display",
+                "value": true
+            }, {
+                "id": "contrast",
+                "type": "number",
+                "element": "input",
+                "doc": "Set the OLED contrast (1-254)",
+                "label": "OLED Contrast",
+                "value": "",
+                "attributes": {
+                    "min": 1,
+                    "max": 254
+                }
+            }, {
+                "id": "sleep_after",
+                "type": "number",
+                "element": "input",
+                "doc": "Time before activating the screensaver (seconds)",
+                "label": "Screensaver Activation Time",
+                "value": "",
+                "attributes": {
+                    "min": 0
+                }
+            }, {
+                "id": "deep_sleep_after",
+                "type": "number",
+                "element": "input",
+                "doc": "Time before entering deep sleep mode (seconds)",
+                "label": "Deep Sleep Activation Time",
+                "value": "",
+                "attributes": {
+                    "min": 0
+                }
+            }, {
+                "id": "restart_oled",
+                "element": "button",
+                "label": "Restart OLED",
+                "doc": "Click to restart the OLED display",
+                "onClick": {
+                    "type": "emit",
+                    "message": "callMethod",
+                    "data": {
+                        "endpoint": "miscellanea/quadify",
+                        "method": "restartOled",
+                        "data": ""
+                    }
+                }
+            }]
+        },
+        {
+            "id": "remote",
+            "element": "section",
+            "label": "Remote Control",
+            "icon": "fa-remote",
+            "onSave": {
+                "type": "controller",
+                "endpoint": "miscellanea/quadify",
+                "method": "updateRemoteConfig"
+            },
+            "saveButton": {
+                "label": "Save",
+                "data": ["remote_active"]
+            },
+            "content": [{
+                "id": "remote_active",
+                "element": "switch",
+                "label": "Enable Remote",
+                "doc": "Enable or disable the remote control feature",
+                "value": true
+            }, {
+                "id": "diagnose_remote",
+                "element": "button",
+                "label": "Diagnose Remote",
+                "doc": "Run a diagnostic for the remote control",
+                "onClick": {
+                    "type": "plugin",
+                    "endpoint": "miscellanea/quadify",
+                    "method": "diagnoseRemote"
+                }
+            }]
+        }
+    ]
 }
-

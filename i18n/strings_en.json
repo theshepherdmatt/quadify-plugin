@@ -1,0 +1,18 @@
+{
+	"QUADIFY": {
+		"PLUGINCONF": "Quadify button and GPIO configuration",
+		"GPIOCONFIG": "GPIO configuration",
+		"D_GPIOCONFIG": "Configure the GPIO pins to use for the Quadify project, including the on/off button functionality. This configuration allows you to manage the GPIO pins for controlling power button behavior, shutdown signals, and boot indicators.",
+		"SOFTSHUTDOWN": "Software shutdown GPIO pin",
+		"D_SOFTSHUTDOWN": "Controls which GPIO pin is activated (HIGH) when a shutdown is initiated from software.",
+		"DD_SOFTSHUTDOWN": "Default = 4, set to HIGH when Volumio receives a shutdown command",
+		"SHUTDOWNBUTTON": "Shutdown button GPIO pin",
+		"D_SHUTDOWNBUTTON": "Controls which GPIO pin is monitored for shutdown when the hardware button is pressed.",
+		"DD_SHUTDOWNBUTTON": "Default = 17, monitors the pin for a press to initiate shutdown",
+		"BOOTOK": "Successful boot GPIO pin",
+		"D_BOOTOK": "Controls which GPIO pin is activated (HIGH) after booting successfully.",
+		"DD_BOOTOK": "Default = 22, set to HIGH after boot",
+		"SAVE": "Save"
+	}
+}
+

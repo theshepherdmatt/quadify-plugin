@@ -1,0 +1,54 @@
+{
+	"page": {
+		"label": "TRANSLATE.QUADIFY.PLUGINCONF"
+	},
+	"sections": [{
+		"id": "pin_settings",
+		"element": "section",
+		"label": "TRANSLATE.QUADIFY.GPIOCONFIG",
+		"description": "TRANSLATE.QUADIFY.D_GPIOCONFIG",
+		"icon": "fa-sliders",
+		"onSave": {
+			"type": "controller",
+			"endpoint": "system_hardware/quadify",
+			"method": "updateButtonConfig"
+		},
+		"saveButton": {
+			"label": "TRANSLATE.QUADIFY.SAVE",
+			"data": [
+					"soft_shutdown",
+					"shutdown_button",
+					"boot_ok"
+				]
+		},
+		"content": [
+		{
+			"id": "soft_shutdown",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.QUADIFY.D_SOFTSHUTDOWN",
+			"label": "TRANSLATE.QUADIFY.SOFTSHUTDOWN",
+			"description": "TRANSLATE.QUADIFY.DD_SOFTSHUTDOWN",
+			"value": ""
+		},
+		{
+			"id": "shutdown_button",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.QUADIFY.D_SHUTDOWNBUTTON",
+			"label": "TRANSLATE.QUADIFY.SHUTDOWNBUTTON",
+			"description": "TRANSLATE.QUADIFY.DD_SHUTDOWNBUTTON",
+			"value": ""
+		},
+		{
+			"id": "boot_ok",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.QUADIFY.D_BOOTOK",
+			"label": "TRANSLATE.QUADIFY.BOOTOK",
+			"description": "TRANSLATE.QUADIFY.DD_BOOTOK",
+			"value": ""
+		}]
+	}]
+}
+

@@ -1,0 +1,84 @@
+[0;32mQuadify's audiophile installation is tuning up...[0m
+[1;33mTuning in to Node.js and npm frequencies...[0m
+[0;32mNode.js and npm are already in harmony.[0m
+* Setting up the stage for Quadify OLED on Volumio
+[0;32mEssential building blocks are in place, like a solid music collection.[0m
+
+> epoll@4.0.2 install /home/volumio/Quadify-volumio/oled/node_modules/epoll
+> node-gyp rebuild
+
+gyp WARN EACCES current user ("volumio") does not have permission to access the dev dir "/root/.cache/node-gyp/14.15.4"
+gyp WARN EACCES attempting to reinstall using temporary dev dir "/home/volumio/Quadify-volumio/oled/node_modules/epoll/.node-gyp"
+make: Entering directory '/home/volumio/Quadify-volumio/oled/node_modules/epoll/build'
+  CXX(target) Release/obj.target/epoll/src/epoll.o
+  SOLINK_MODULE(target) Release/obj.target/epoll.node
+  COPY Release/epoll.node
+make: Leaving directory '/home/volumio/Quadify-volumio/oled/node_modules/epoll/build'
+
+> i2c-bus@5.2.3 install /home/volumio/Quadify-volumio/oled/node_modules/i2c-bus
+> node-gyp rebuild
+
+gyp WARN EACCES current user ("volumio") does not have permission to access the dev dir "/root/.cache/node-gyp/14.15.4"
+gyp WARN EACCES attempting to reinstall using temporary dev dir "/home/volumio/Quadify-volumio/oled/node_modules/i2c-bus/.node-gyp"
+make: Entering directory '/home/volumio/Quadify-volumio/oled/node_modules/i2c-bus/build'
+  CXX(target) Release/obj.target/i2c/src/i2c.o
+  SOLINK_MODULE(target) Release/obj.target/i2c.node
+  COPY Release/i2c.node
+make: Leaving directory '/home/volumio/Quadify-volumio/oled/node_modules/i2c-bus/build'
+
+> pi-spi@1.2.1 install /home/volumio/Quadify-volumio/oled/node_modules/pi-spi
+> node-gyp rebuild
+
+gyp WARN EACCES current user ("volumio") does not have permission to access the dev dir "/root/.cache/node-gyp/14.15.4"
+gyp WARN EACCES attempting to reinstall using temporary dev dir "/home/volumio/Quadify-volumio/oled/node_modules/pi-spi/.node-gyp"
+make: Entering directory '/home/volumio/Quadify-volumio/oled/node_modules/pi-spi/build'
+  CXX(target) Release/obj.target/spi_binding/spi_binding.o
+In file included from ../spi_binding.cc:1:
+/home/volumio/Quadify-volumio/oled/node_modules/pi-spi/.node-gyp/14.15.4/include/node/node.h:758:43: warning: cast between incompatible function types from 'void (*)(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE)' {aka 'void (*)(v8::Local<v8::Object>)'} to 'node::addon_register_func' {aka 'void (*)(v8::Local<v8::Object>, v8::Local<v8::Value>, void*)'} [-Wcast-function-type]
+       (node::addon_register_func) (regfunc),                          \
+                                           ^
+/home/volumio/Quadify-volumio/oled/node_modules/pi-spi/.node-gyp/14.15.4/include/node/node.h:792:3: note: in expansion of macro 'NODE_MODULE_X'
+   NODE_MODULE_X(modname, regfunc, NULL, 0)  // NOLINT (readability/null_usage)
+   ^~~~~~~~~~~~~
+../spi_binding.cc:162:1: note: in expansion of macro 'NODE_MODULE'
+ NODE_MODULE(spi_binding, InitAll)
+ ^~~~~~~~~~~
+  SOLINK_MODULE(target) Release/obj.target/spi_binding.node
+  COPY Release/spi_binding.node
+make: Leaving directory '/home/volumio/Quadify-volumio/oled/node_modules/pi-spi/build'
+
+> spi-device@3.1.2 install /home/volumio/Quadify-volumio/oled/node_modules/spi-device
+> node-gyp rebuild
+
+gyp WARN EACCES current user ("volumio") does not have permission to access the dev dir "/root/.cache/node-gyp/14.15.4"
+gyp WARN EACCES attempting to reinstall using temporary dev dir "/home/volumio/Quadify-volumio/oled/node_modules/spi-device/.node-gyp"
+make: Entering directory '/home/volumio/Quadify-volumio/oled/node_modules/spi-device/build'
+  CXX(target) Release/obj.target/spi/src/spi.o
+  CXX(target) Release/obj.target/spi/src/spidevice.o
+  CXX(target) Release/obj.target/spi/src/open.o
+  CXX(target) Release/obj.target/spi/src/close.o
+  CXX(target) Release/obj.target/spi/src/transfer.o
+  CXX(target) Release/obj.target/spi/src/getoptions.o
+  CXX(target) Release/obj.target/spi/src/setoptions.o
+  SOLINK_MODULE(target) Release/obj.target/spi.node
+  COPY Release/spi.node
+make: Leaving directory '/home/volumio/Quadify-volumio/oled/node_modules/spi-device/build'
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN oled@1.0.0 No description
+npm WARN oled@1.0.0 No repository field.
+
++ pi-spi@1.2.1
++ onoff@6.0.3
++ async@3.2.5
++ socket.io-client@2.1.1
++ spi-device@3.1.2
++ date-and-time@3.2.0
++ i2c-bus@5.2.3
+added 41 packages from 37 contributors and audited 41 packages in 62.454s
+found 4 vulnerabilities (1 high, 3 critical)
+  run `npm audit fix` to fix them, or `npm audit` for details
+Created symlink /etc/systemd/system/multi-user.target.wants/oled.service → /etc/systemd/system/oled.service.
+[1;33mSetting up the Startup Indicator LED Service...[0m
+[0;32mStartup Indicator LED Service has been created, enabled, and started.[0m
+[0;32mThe Quadify Dac is set, Happy Listening!![0m
+Installation began at 17:11:06 and concluded at 17:13:19. Enjoy the music!

@@ -1,7 +1,7 @@
 {
   "name": "quadify",
   "version": "1.0.0",
-  "description": "Quadify plugin for Volumio",
+  "description": "Quadify plugin for Volumio with OLED, GPIO, and remote control integration.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,15 +15,16 @@
     "os": [
       "buster"
     ],
-    "details": "Quadify plugin for GPIO button and hardware management",
-    "changelog": "",
+    "details": "Quadify plugin for OLED display, GPIO button control, and remote management",
+    "changelog": "Initial version",
     "architectures": [
-      "armhf"
+      "armhf",
+      "arm64"
     ]
   },
   "dependencies": {
     "async": "^3.2.6",
-    "date-and-time": "^3.6.0",
+    "date-and-time": "^3.0.2",
     "fs-extra": "^10.0.0",
     "i2c-bus": "^5.2.3",
     "kew": "^0.7.0",
@@ -36,5 +37,21 @@
   "engines": {
     "node": ">=14",
     "volumio": ">=3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/quadify-plugin.git"
+  },
+  "keywords": [
+    "volumio",
+    "quadify",
+    "plugin",
+    "oled",
+    "gpio",
+    "remote-control"
+  ],
+  "bugs": {
+    "url": "https://github.com/your-repo/quadify-plugin/issues"
+  },
+  "homepage": "https://github.com/your-repo/quadify-plugin#readme"
 }

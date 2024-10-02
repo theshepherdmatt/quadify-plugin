@@ -56,9 +56,9 @@ Description=Quadify OLED Display Service
 After=volumio.service
 
 [Service]
-WorkingDirectory=/data/plugins/miscellanea/quadify/apps/oled
-ExecStart=/usr/bin/node /data/plugins/miscellanea/quadify/apps/oled/index.js
-ExecStop=/usr/bin/node /data/plugins/miscellanea/quadify/apps/oled/off.js
+WorkingDirectory=/data/plugins/system_hardware/quadify/apps/oled
+ExecStart=/usr/bin/node /data/plugins/system_hardware/quadify/apps/oled/index.js
+ExecStop=/usr/bin/node /data/plugins/system_hardware/quadify/apps/oled/off.js
 Restart=on-failure
 User=volumio
 Environment=PATH=/usr/bin:/usr/local/bin
@@ -92,12 +92,12 @@ Description=Startup Indicator LED Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /data/plugins/miscellanea/quadify/apps/startupindicator.js
+ExecStart=/usr/bin/node /data/plugins/system_hardware/quadify/apps/startupindicator.js
 Restart=no
 User=volumio
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
-WorkingDirectory=/data/plugins/miscellanea/quadify/apps/oled
+WorkingDirectory=/data/plugins/system_hardware/quadify/apps/oled
 StandardOutput=journal
 StandardError=journal
 
@@ -120,7 +120,7 @@ EOL
 # Function to install the remote script
 install_remote_script() {
     log_message "${YELLOW}Running the remote install script...${NC}"
-    if [ -f "/data/plugins/miscellanea/quadify/apps/remote/install.sh" ]; then
+    if [ -f "/data/plugins/system_hardware/quadify/apps/remote/install.sh" ]; then
         (cd /data/plugins/miscellanea/quadify/apps/remote && sudo bash install.sh >> $LOG_FILE 2>> $LOG_FILE)
         log_message "${GREEN}Remote install script executed successfully.${NC}"
     else

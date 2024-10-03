@@ -1,0 +1,9 @@
+[Unit]
+Wants=lircd-setup.service
+After=network.target lircd-setup.service
+[Service]
+ExecStart=/usr/sbin/lircd -O /data/plugins/system_hardware/audiophonics_evo_sabre/apps/lirc/lirc_options.conf -o /var/run/lirc/lircd -H default -d /dev/lirc0 -n /data/plugins/system_hardware/audiophonics_evo_sabre/apps/lirc/lircd.conf
+Type=simple
+User=root
+[Install]
+WantedBy=multi-user.target

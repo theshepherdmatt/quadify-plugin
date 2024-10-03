@@ -1,0 +1,12 @@
+[Unit]
+Description=OLED Display Service for EVO SABRE
+After=volumio.service
+[Service]
+WorkingDirectory=/data/plugins/system_hardware/audiophonics_evo_sabre/apps/evo_oled
+ExecStart=/usr/bin/sudo /usr/bin/node /data/plugins/system_hardware/audiophonics_evo_sabre/apps/evo_oled/index.js volumio
+StandardOutput=null
+KillSignal=SIGINT 
+Type=simple
+User=root
+[Install]
+WantedBy=multi-user.target

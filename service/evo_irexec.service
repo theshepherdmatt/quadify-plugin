@@ -1,0 +1,9 @@
+[Unit]
+Wants=lircd-setup.service
+After=network.target lircd-setup.service
+[Service]
+ExecStart=/usr/bin/irexec /data/plugins/system_hardware/audiophonics_evo_sabre/apps/lirc/irexec.lircrc
+Type=simple
+User=root
+[Install]
+WantedBy=multi-user.target

@@ -404,31 +404,33 @@ Oled.prototype.setContrast = function(contrast,cb){
 	this.send_instruction_seq(seq,cb);
 }
 
-
-Oled.prototype.drawPixel = function(x,y,color,bypass_buffer) {
+Oled.prototype.drawPixel = function(x, y, color, bypass_buffer) {
+    // Flip both x and y coordinates
+    let newX = this.WIDTH - x - 1;
+    let newY = this.HEIGHT - y - 1;
 
     // Ne rien faire si le pixel n'est pas dans l'espace de l'écran
     if (	
-            x >= this.WIDTH  || 
-            y >= this.HEIGHT || 
-            x < 0 ||
-			y < 0
-        ){ 
-            return;
-        } 
+        newX >= this.WIDTH  || 
+        newY >= this.HEIGHT || 
+        newX < 0 || 
+        newY < 0
+    ){ 
+        return;
+    } 
 
-    let horitonzal_index = x >> 1;
-    let buffer_index =  horitonzal_index   + ( (this.horizontal_chunks <<1 ) * y )  // quel element du buffer faut-il modifier pour changer ce pixel ?
+    let horitonzal_index = newX >> 1; // Horizontal index using newX
+    let buffer_index =  horitonzal_index + ((this.horizontal_chunks << 1) * newY); // Use newY for buffer index calculation
     let oled_subcolumn_state = this.buffer[buffer_index];
-    let right_col = x & 0x1; // chaque entrée du buffer représente 2 pixels. On détermine ici si x concerne le pixel de gauche ou de droite représenté par oled_subcolumn_state. ( true si x est impair )
-    let sub_col_left = oled_subcolumn_state >> 4; // qu'est-ce qu'on a dans la col 0 (gauche) ?
-    let sub_col_right = oled_subcolumn_state & 0x0f;  // qu'est-ce qu'on a dans la col 1 (droite) ?
 
-    if(right_col){ // si x doit changer le pixel de droite
-        this.buffer[buffer_index] = sub_col_left << 4 | color; // buffer[buffer_index] = pixel de gauche intact + nouveau pixel 
-    }
-    else { // si x doit changer le pixel de gauche
-        this.buffer[buffer_index] = color << 4 | sub_col_right; // buffer[buffer_index] = nouveau pixel + pixel de droite intact
+    let right_col = newX & 0x1; // Check the flipped x-coordinate
+    let sub_col_left = oled_subcolumn_state >> 4; // Pixel data for the left side
+    let sub_col_right = oled_subcolumn_state & 0x0f; // Pixel data for the right side
+
+    if (right_col) { // If flipped x corresponds to the right column
+        this.buffer[buffer_index] = (sub_col_left << 4) | color; // Update right pixel
+    } else { // If flipped x corresponds to the left column
+        this.buffer[buffer_index] = (color << 4) | sub_col_right; // Update left pixel
     }
 }
 

@@ -325,8 +325,61 @@ if (this.page === "deep_sleep") return;
 
 ap_oled.prototype.clock_mode = function() {
     if (this.page === "clock") return;
-    clearInterval(this.update_interval); // Clear the previous interval if any
+    clearInterval(this.update_interval); // Clear previous interval
     this.page = "clock";
+
+    // Function to calculate string dimensions based on scaling
+    function getStringDimensions(string, scale) {
+        const width = string.length * 8 * scale; // 8 pixels per character
+        const height = 16 * scale; // Typically, unifont characters are 16 pixels tall
+        return { width, height };
+    }
+
+    // Function to draw a string using unifont with scaling
+    function drawUnifontString(string, x, y, scale, driver) {
+        for (let i = 0; i < string.length; i++) {
+            const charCode = string.charCodeAt(i);
+            const charData = unifontMap[charCode]; // Retrieve character data from the unifont map
+            if (!charData) continue; // Skip if character is not found
+
+            charData.forEach((row, rowIndex) => {
+                for (let bit = 0; bit < 8; bit++) {
+                    if (row & (1 << (7 - bit))) {
+                        for (let dy = 0; dy < scale; dy++) {
+                            for (let dx = 0; dx < scale; dx++) {
+                                driver.drawPixel(x + bit * scale + dx, y + rowIndex * scale + dy, 1);
+                            }
+                        }
+                    }
+                }
+            });
+            x += 8 * scale; // Move to the next character position
+        }
+    }
+
+    // Load and parse unifont.hex (ensure this happens only once)
+    const fs = require('fs');
+    const path = require('path');
+    const unifontFilePath = path.join(__dirname, './unifont.hex');
+    const unifontData = fs.readFileSync(unifontFilePath, 'utf8');
+
+    function parseUnifont(hexData) {
+        const fontMap = {};
+        const lines = hexData.split('\n');
+        lines.forEach(line => {
+            if (line.trim() === '' || line[0] === '#') return; // Skip empty/comment lines
+            const [code, hexValues] = line.split(':');
+            const charCode = parseInt(code, 16);
+            const rows = [];
+            for (let i = 0; i < hexValues.length; i += 2) {
+                rows.push(parseInt(hexValues.substring(i, i + 2), 16));
+            }
+            fontMap[charCode] = rows;
+        });
+        return fontMap;
+    }
+
+    const unifontMap = parseUnifont(unifontData);
 
     this.refresh_action = () => {
         this.driver.buffer.fill(0x00); // Clear the screen buffer
@@ -334,18 +387,24 @@ ap_oled.prototype.clock_mode = function() {
         // Get the current time (hours and minutes)
         let ftime = date.format(new Date(), 'HH:mm');
 
-        // Set cursor position for time display and render the time using monospaced font
-        this.driver.setCursor(70, 15);
-        this.driver.writeString(fonts.monospace, 4, ftime, 8);
+        // Calculate the position for centered time
+        const scale = 3; // Adjust the scale factor
+        const { width, height } = getStringDimensions(ftime, scale);
+        const startX = Math.floor((this.driver.WIDTH - width) / 2);
+        const startY = Math.floor((this.driver.HEIGHT - height) / 2);
+
+        // Draw the time using unifont
+        drawUnifontString(ftime, startX, startY, scale, this.driver);
 
         // Update the OLED display
         this.driver.update(true);
-    }
+    };
 
     // Execute refresh immediately and set an interval to update the clock every second
     this.refresh_action();
     this.update_interval = setInterval(() => { this.refresh_action() }, 1000);
-}
+};
+
 
 ap_oled.prototype.playback_mode = function() {
     if (this.page === "playback") return;

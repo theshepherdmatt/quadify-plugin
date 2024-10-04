@@ -28,7 +28,7 @@ const opts = {
     rstPin: 25,
     contrast: CONTRAST,
     divisor: 0xf1,
-    main_rate: 
+    main_rate: 1000 // Added missing value for main_rate
 };
 
 http.createServer(server).listen(4153);
@@ -54,10 +54,10 @@ function server(req, res) {
                     DRIVER.driver.setContrast(value, () => {
                         DRIVER.refresh_action = temp;
                         DRIVER.refresh_action();
-                    })
+                    });
                 };
             }
-            else { res.end("0") }
+            else { res.end("0"); }
             break;
         case 'sleep_after':
             TIME_BEFORE_SCREENSAVER = value;
@@ -463,10 +463,10 @@ ap_oled.prototype.snake_screensaver = function () {
     this.refresh_action = () => {
         this.driver.buffer.fill(0x00);
         let x;
-        if (count % this.width == 0) { flip = !flip }
-        if (flip) x = count % this.width + 1
-        else x = this.width - count % this.width
-        let y = ~~(count / this.width) * 3
+        if (count % this.width == 0) { flip = !flip; }
+        if (flip) x = count % this.width + 1;
+        else x = this.width - count % this.width;
+        let y = ~~(count / this.width) * 3;
         tail.push([x, y]);
         if (tail.length > t_tail_length) tail.shift();
         for (let i of tail) {
@@ -475,7 +475,7 @@ ap_oled.prototype.snake_screensaver = function () {
         for (let r of random_pickups) {
             if (((flip && x >= r[0]) || (!flip && x <= r[0])) && y >= r[1]) {
                 t_tail_length += 5;
-                random_pickups.splice(random_pickups.indexOf(r), 1)
+                random_pickups.splice(random_pickups.indexOf(r), 1);
             }
             this.driver.fillRect(r[0], r[1], 1, 1, 1);
         }
@@ -487,8 +487,7 @@ ap_oled.prototype.snake_screensaver = function () {
 }
 
 fs.readFile("config.json", (err, data) => {
-
-    const fail_warn = () => { console.log("Cannot read config file. Using default settings instead.") };
+    const fail_warn = () => { console.log("Cannot read config file. Using default settings instead."); };
     if (err) fail_warn();
     else {
         try {
@@ -497,7 +496,7 @@ fs.readFile("config.json", (err, data) => {
             TIME_BEFORE_SCREENSAVER = (data && data.sleep_after.value) ? data.sleep_after.value * 1000 : TIME_BEFORE_SCREENSAVER;
             TIME_BEFORE_DEEPSLEEP = (data && data.deep_sleep_after.value) ? data.deep_sleep_after.value * 1000 : TIME_BEFORE_DEEPSLEEP;
             CONTRAST = (data && data.contrast.value) ? data.contrast.value : CONTRAST;
-        } catch (e) { fail_warn() }
+        } catch (e) { fail_warn(); }
     }
 
     opts.contrast = CONTRAST;
@@ -509,20 +508,18 @@ fs.readFile("config.json", (err, data) => {
 
     DRIVER = OLED;
     OLED.driver.load_and_display_logo((displaylogo) => {
-        console.log("logo loaded")
+        console.log("logo loaded");
         if (displaylogo) logo_start_display_time = new Date();
     });
     OLED.driver.load_hex_font("unifont.hex", start_app);
 
     function start_app() {
-
         let time_remaining = 0;
         if (logo_start_display_time) {
             time_remaining = LOGO_DURATION - (new Date().getTime() - logo_start_display_time.getTime());
             time_remaining = (time_remaining <= 0) ? 0 : time_remaining;
         }
         setTimeout(() => {
-
             // Initialize currentMode
             let currentMode = 'volume'; // Modes: 'volume', 'playlist'
 
@@ -629,13 +626,13 @@ fs.readFile("config.json", (err, data) => {
                 if (streamer.data.bitrate) OLED.footertext += streamer.data.bitrate.toString().replace(/\s/gi, "") + " ";
             }
 
-            streamer.on("sampleRateChange", (data) => { updatefooter() });
-            streamer.on("sampleDepthChange", (data) => { updatefooter() });
-            streamer.on("bitRateChange", (data) => { updatefooter() });
+            streamer.on("sampleRateChange", (data) => { updatefooter(); });
+            streamer.on("sampleDepthChange", (data) => { updatefooter(); });
+            streamer.on("bitRateChange", (data) => { updatefooter(); });
 
             streamer.watchIdleState(TIME_BEFORE_CLOCK);
-            streamer.on("iddleStart", (data) => { OLED.handle_sleep(false) });
-            streamer.on("iddleStop", (data) => { OLED.handle_sleep(true) });
+            streamer.on("iddleStart", (data) => { OLED.handle_sleep(false); });
+            streamer.on("iddleStop", (data) => { OLED.handle_sleep(true); });
 
             OLED.playback_mode();
             OLED.listen_to("ip", 1000);
@@ -666,4 +663,3 @@ fs.readFile("config.json", (err, data) => {
     process.on('SIGUSR2', exitcatch.bind(null, { exit: true }));
 
 });
-

@@ -1,5 +1,3 @@
-
-
 const os = require("os");
 const date = require('date-and-time');
 const oled = require('./oled.js');
@@ -7,8 +5,9 @@ const fonts = require('./fonts.js');
 const fs = require("fs");
 const http = require("http");
 const {volumio_listener} = require("./volumiolistener.js");
+const axios = require('axios');
 
-
+const rotary = require('./rotary.js');
 
 
 var DRIVER;
@@ -347,7 +346,8 @@ ap_oled.prototype.clock_mode = function() {
                     if (row & (1 << (7 - bit))) {
                         for (let dy = 0; dy < scale; dy++) {
                             for (let dx = 0; dx < scale; dx++) {
-                                driver.drawPixel(x + bit * scale + dx, y + rowIndex * scale + dy, 1);
+                                // Use maximum brightness for clock pixels
+                                driver.drawPixel(x + bit * scale + dx, y + rowIndex * scale + dy, 15); // 15 for maximum brightness
                             }
                         }
                     }
@@ -536,6 +536,72 @@ ap_oled.prototype.get_ip = function(){
 	catch(e){this.ip = null;}
 }
 
+
+
+ap_oled.prototype.playlist_mode = async function() {
+    if (this.page === "playlist") return;
+    clearInterval(this.update_interval);
+    this.page = "playlist";
+    const playlists = await getPlaylists();
+    let playlistIndex = 0;
+
+    this.refresh_action = () => {
+        this.driver.buffer.fill(0x00); // Clear the display buffer
+
+        if (playlists.length > 0) {
+            const selectedPlaylist = playlists[playlistIndex].name;
+
+            // Center the playlist name text
+            let textWidth = this.driver.getStringWidthUnifont(selectedPlaylist);
+            let startX = Math.floor((this.width - textWidth) / 2);
+            this.driver.setCursor(startX, Math.floor(this.height / 2));
+
+            // Write the selected playlist name
+            this.driver.writeString(fonts.monospace, 1, selectedPlaylist, 6);
+        }
+
+        this.driver.update();
+    };
+
+    // Add an interval to refresh the OLED display periodically
+    this.update_interval = setInterval(() => {
+        this.refresh_action();
+    }, 500);
+};
+
+
+async function getPlaylists() {
+    try {
+        const response = await axios.get('http://localhost:3000/api/v1/playlists');
+        if (response.status === 200) {
+            return response.data.lists;
+        } else {
+            console.error('Error fetching playlists:', response.status);
+            return [];
+        }
+    } catch (error) {
+        console.error('Exception fetching playlists:', error);
+        return [];
+    }
+}
+
+// Example: Switch to playlist mode
+function switchToPlaylistMode() {
+    currentMode = 'playlist';
+    console.log('Switched to playlist mode');
+    if (DRIVER && DRIVER.refresh_action) {
+        DRIVER.playlist_mode();  // Display playlists on the screen
+    }
+}
+
+// Example: Switch to volume mode
+function switchToVolumeMode() {
+    currentMode = 'volume';
+    console.log('Switched to volume mode');
+    if (DRIVER && DRIVER.refresh_action) {
+        DRIVER.playback_mode();  // Display playback info on the screen
+    }
+}
 
 ap_oled.prototype.handle_sleep = function(exit_sleep){
 	

@@ -1,94 +1,144 @@
+// rotary.js
+
 const { Gpio } = require('onoff');
+const { EventEmitter } = require('events');
 const { exec } = require('child_process');
-const queue = require('async/queue');
+const asyncQueue = require('async/queue');
 
-// GPIO setup
-const clk = new Gpio(13, 'in', 'both');
-const dt = new Gpio(5, 'in', 'both');
-const sw = new Gpio(6, 'in', 'falling', { debounceTimeout: 10 });
+class RotaryEncoder extends EventEmitter {
+    /**
+     * Creates an instance of RotaryEncoder.
+     * @param {Object} options - Configuration options.
+     * @param {number} options.clkPin - GPIO pin number for CLK.
+     * @param {number} options.dtPin - GPIO pin number for DT.
+     * @param {number} options.swPin - GPIO pin number for Switch.
+     * @param {number} [options.stepsPerAction=4] - Steps required to trigger an action.
+     * @param {number} [options.debounceDelay=5] - Debounce delay in milliseconds.
+     */
+    constructor(options) {
+        super();
 
-let clkLastState = clk.readSync();
-let lastDirection = null;
-let stepCounter = 0;
-const stepsPerAction = 4; // Adjust based on desired sensitivity
-const debounceDelay = 5; // Shorter delay to quickly respond to changes
-
-// Command execution queue
-const execQueue = queue((task, completed) => {
-    exec(task.command, (error, stdout, stderr) => {
-        if (error) console.error(`exec error: ${error}`);
-        if (stdout) console.log(`stdout: ${stdout}`);
-        if (stderr) console.error(`stderr: ${stderr}`);
-        completed();
-    });
-}, 1);
-
-let platform = '';
-exec("volumio status", (error, stdout, stderr) => {
-    if (!error) {
-        platform = 'volumio';
-    } else {
-        platform = 'moode';
-    }
-    console.log(`Detected platform: ${platform}`);
-});
-
-const handleRotation = () => {
-    const clkState = clk.readSync();
-    const dtState = dt.readSync();
-
-    if (clkState !== clkLastState) {
-        const direction = clkState !== dtState ? 'Clockwise' : 'Counter-Clockwise';
-
-        // Check if direction changed
-        if (lastDirection && direction !== lastDirection) {
-            // Reset counter if direction changed
-            stepCounter = 1;
-        } else {
-            // Increment counter if direction is consistent
-            stepCounter++;
+        if (!options || typeof options !== 'object') {
+            throw new Error('RotaryEncoder requires an options object');
         }
 
-        // Update last direction
-        lastDirection = direction;
+        const { clkPin, dtPin, swPin, stepsPerAction = 4, debounceDelay = 5 } = options;
 
-        // Execute command if enough steps in the same direction are accumulated
-        if (stepCounter >= stepsPerAction) {
-            const command = direction === 'Clockwise' ? (platform === 'volumio' ? 'volumio volume plus' : 'mpc volume +5') : (platform === 'volumio' ? 'volumio volume minus' : 'mpc volume -5');
-            console.log(`${direction}: ${command}`);
-            execQueue.push({ command });
-            stepCounter = 0; // Reset counter after executing an action
+        if (typeof clkPin !== 'number' || typeof dtPin !== 'number' || typeof swPin !== 'number') {
+            throw new Error('clkPin, dtPin, and swPin must be numbers');
         }
+
+        this.clkPin = clkPin;
+        this.dtPin = dtPin;
+        this.swPin = swPin;
+        this.stepsPerAction = stepsPerAction;
+        this.debounceDelay = debounceDelay;
+
+        // Initialize GPIO
+        this.clk = new Gpio(this.clkPin, 'in', 'both');
+        this.dt = new Gpio(this.dtPin, 'in', 'both');
+        this.sw = new Gpio(this.swPin, 'in', 'falling', { debounceTimeout: 10 });
+
+        // Internal state
+        this.clkLastState = this.clk.readSync();
+        this.lastDirection = null;
+        this.stepCounter = 0;
+
+        // Platform detection
+        this.platform = 'unknown';
+        exec("volumio status", (error, stdout, stderr) => {
+            if (!error) {
+                this.platform = 'volumio';
+            } else {
+                this.platform = 'moode';
+            }
+            console.log(`Detected platform: ${this.platform}`);
+        });
+
+        // Command execution queue
+        this.execQueue = asyncQueue((task, callback) => {
+            exec(task.command, (error, stdout, stderr) => {
+                if (error) console.error(`exec error: ${error}`);
+                if (stdout) console.log(`stdout: ${stdout}`);
+                if (stderr) console.error(`stderr: ${stderr}`);
+                callback();
+            });
+        }, 1); // Concurrency of 1
+
+        // Bind event handlers
+        this.clk.watch(this.handleRotation.bind(this));
+        this.sw.watch(this.handleButtonPress.bind(this));
+
+        // Clean up on exit
+        process.on('SIGINT', () => {
+            this.unexport();
+            process.exit();
+        });
     }
-    clkLastState = clkState;
-};
 
-const handleButtonPress = () => {
-    console.log('Button Pressed');
-    const command = platform === 'volumio' ? 'volumio toggle' : 'mpc toggle';
-    execQueue.push({ command });
-};
+    /**
+     * Handles rotation events.
+     */
+    handleRotation() {
+        const clkState = this.clk.readSync();
+        const dtState = this.dt.readSync();
 
-// Event watchers setup
-clk.watch((err) => {
-    if (err) {
-        console.error('Error', err);
-        return;
+        if (clkState !== this.clkLastState) {
+            const direction = clkState !== dtState ? 'Clockwise' : 'Counter-Clockwise';
+
+            // Check if direction changed
+            if (this.lastDirection && direction !== this.lastDirection) {
+                // Reset counter if direction changed
+                this.stepCounter = 1;
+            } else {
+                // Increment counter if direction is consistent
+                this.stepCounter++;
+            }
+
+            // Update last direction
+            this.lastDirection = direction;
+
+            // Execute command if enough steps in the same direction are accumulated
+            if (this.stepCounter >= this.stepsPerAction) {
+                const command = direction === 'Clockwise'
+                    ? (this.platform === 'volumio' ? 'volumio volume plus' : 'mpc volume +5')
+                    : (this.platform === 'volumio' ? 'volumio volume minus' : 'mpc volume -5');
+
+                console.log(`${direction}: ${command}`);
+                this.execQueue.push({ command });
+
+                // Emit rotate event
+                this.emit('rotate', direction);
+
+                // Reset counter
+                this.stepCounter = 0;
+            }
+        }
+
+        this.clkLastState = clkState;
     }
-    handleRotation();
-});
 
-sw.watch((err) => {
-    if (err) {
-        console.error('Error', err);
-        return;
+    /**
+     * Handles button press events.
+     */
+    handleButtonPress() {
+        console.log('Button Pressed');
+        const command = this.platform === 'volumio' ? 'volumio toggle' : 'mpc toggle';
+        this.execQueue.push({ command });
+
+        // Emit buttonPress event
+        this.emit('buttonPress');
     }
-    handleButtonPress();
-});
 
-process.on('SIGINT', () => {
-    clk.unexport();
-    dt.unexport();
-    sw.unexport();
-    process.exit();
-});
+    /**
+     * Cleans up GPIO resources.
+     */
+    unexport() {
+        this.clk.unexport();
+        this.dt.unexport();
+        this.sw.unexport();
+    }
+}
+
+module.exports = RotaryEncoder;
+
